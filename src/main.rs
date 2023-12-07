@@ -12,7 +12,8 @@ async fn main() -> shuttle_axum::ShuttleAxum {
     let router = Router::new()
         .route("/1/*path", get(result_1))
         .route("/4/strength", post(result_4_strength))
-        .route("/4/contest", post(result_4_contest));
+        .route("/4/contest", post(result_4_contest))
+        .route("/6", post(result_6));
 
     Ok(router.into())
 }
@@ -121,4 +122,27 @@ async fn result_4_contest(Json(input): Json<Vec<ContestInput>>) -> Response {
     };
 
     Json(result).into_response()
+}
+
+//6
+
+#[derive(Serialize)]
+pub struct Output {
+    pub elf: usize,
+    #[serde(rename = "elf on a shelf")]
+    pub elf_on_shelf: usize,
+    #[serde(rename = "shelf with no elf on it")]
+    pub shelf_no_elf: usize,
+}
+async fn result_6(input: String) -> Response {
+    let elf_count = input.matches("elf").count();
+    let on_shelf = input.matches("elf on a shelf").count();
+    let no_shelf = input.matches("shelf").count() - on_shelf;
+    let res = Output {
+        elf: elf_count,
+        elf_on_shelf: on_shelf,
+        shelf_no_elf: no_shelf,
+    };
+
+    Json(res).into_response()
 }
